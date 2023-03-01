@@ -25,6 +25,10 @@ export async function handleLoginUser(req: Request, res: Response, next: NextFun
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
+    if (!user.isActive) {
+      return res.status(401).json({ message: 'User is not active' });
+    }
+
     const payload = user.profile;
 
     // Generate token JWT

@@ -5,12 +5,12 @@ import log from '../../logger';
 
 const users = Array.from({ length: 10 }, () => (
   {
-    firstName: faker.name.firstName(),
-    lastName: faker.name.lastName(),
+    name: faker.name.firstName(),
+    identification: faker.random.numeric(11),
     email: faker.internet.email(),
     password: faker.internet.password(),
-    role: faker.helpers.arrayElement(['ADMIN', 'INSTRUCTOR', 'MAKER']),
-    avatar: faker.image.avatar(),
+    role: faker.helpers.arrayElement(['HOSPITAL', 'PATIENT', 'DOCTOR']),
+    phone: faker.phone.phoneNumber(),
   }
 ));
 

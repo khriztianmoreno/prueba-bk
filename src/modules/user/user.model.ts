@@ -1,54 +1,41 @@
 import { Schema, model, Document } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
-import { userProfileType, paymentType } from './user.types';
+import { userProfileType } from './user.types';
 import { Role } from '../auth/auth.types';
 
 export interface UserDocument extends Document {
-  firstName: string;
-  lastName: string;
+  name: string;
+  identification: string;
+  address?: string;
   email: string;
+  phone: string;
   password: string; // 1234 -> hash - SHA256 -> 64 chars -> 32 bytes ->
-  avatar?: string;
   role: Role;
   isActive: boolean;
   passwordResetToken?: string;
   passwordResetExpires?: Date;
-  payment?: paymentType;
   createdAt: Date;
   updatedAt: Date;
 
-  fullName: string;
   profile: userProfileType;
   // eslint-disable-next-line no-unused-vars
   comparePassword: (password: string) => Promise<boolean>;
 }
 
-const Payment = new Schema({
-  customerId: String,
-  cards: [
-    {
-      paymentMethodId: String,
-      brand: String,
-      country: String,
-      expMonth: Number,
-      expYear: Number,
-      funding: String,
-      last4: String,
-    },
-  ],
-});
-
 const UserSchema = new Schema({
-  firstName: {
+  name: {
     type: String,
     required: true,
     trim: true,
   },
-  lastName: {
+  identification: {
     type: String,
     required: true,
     trim: true,
+  },
+  address: {
+    type: String,
   },
   email: {
     type: String,
@@ -57,19 +44,19 @@ const UserSchema = new Schema({
     trim: true,
     lowercase: true,
   },
+  phone: {
+    type: String,
+    required: true,
+  },
   password: {
     type: String,
     required: true,
     min: 6,
   },
-  avatar: {
-    type: String,
-    default: '',
-  },
   role: {
     type: String,
-    enum: ['ADMIN', 'INSTRUCTOR', 'MAKER'],
-    default: 'MAKER',
+    enum: ['HOSPITAL', 'PATIENT', 'DOCTOR'],
+    default: 'PATIENT',
   },
   isActive: {
     type: Boolean,
@@ -77,7 +64,6 @@ const UserSchema = new Schema({
   },
   passwordResetToken: String,
   passwordResetExpires: Date,
-  payment: Payment,
 }, {
   timestamps: true,
   versionKey: false,
@@ -104,22 +90,16 @@ UserSchema.pre<UserDocument>('save', async function save(next: Function) {
 });
 
 // Virtuals
-UserSchema.virtual('fullName').get(function fullName() {
-  const { firstName, lastName } = this;
-
-  return `${firstName} ${lastName}`;
-});
-
 UserSchema.virtual('profile').get(function profile() {
   const {
-    firstName, lastName, email, avatar, role,
+    name, identification, email, phone, role,
   } = this;
 
   return {
-    firstName,
-    lastName,
+    name,
+    identification,
     email,
-    avatar,
+    phone,
     role,
   };
 });
